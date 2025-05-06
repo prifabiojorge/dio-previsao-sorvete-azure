@@ -1,0 +1,27 @@
+artifact_path: outputs/mlflow-model
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.9.22
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: pickle
+    sklearn_version: 1.5.1
+metadata:
+  azureml.base_image: mcr.microsoft.com/azureml/curated/ai-ml-automl:22
+  azureml.engine: automl
+mlflow_version: 2.15.1
+model_size_bytes: 212215
+model_uuid: d79db67ff6ae4d4890b3f4e837dc5555
+run_id: great_owl_rvfvh9bvks_10
+signature:
+  inputs: '[{"type": "long", "name": "Temperatura", "required": true}]'
+  outputs: '[{"type": "tensor", "tensor-spec": {"dtype": "int64", "shape": [-1]}}]'
+  params: null
+utc_time_created: '2025-05-05 20:28:56.130097'
