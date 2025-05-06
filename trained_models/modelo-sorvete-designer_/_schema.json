@@ -1,0 +1,25 @@
+{
+  "columnAttributes": [
+    {
+      "name": "Vendas",
+      "type": "Numeric",
+      "isFeature": true,
+      "elementType": {
+        "typeName": "int64",
+        "isNullable": false
+      }
+    },
+    {
+      "name": "Temperatura",
+      "type": "Numeric",
+      "isFeature": true,
+      "elementType": {
+        "typeName": "int64",
+        "isNullable": false
+      }
+    }
+  ],
+  "featureChannels": [],
+  "labelColumns": {},
+  "scoreColumns": {}
+}
