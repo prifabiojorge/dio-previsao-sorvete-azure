@@ -32,69 +32,99 @@ Desenvolver um modelo de regressão preditiva que permita:
 
 1.  **Configuração do Ambiente Azure:**
     *   Criação do Grupo de Recursos (`rg-dio-projetoum`).
-        *   _(Print da criação do grupo de recursos aqui)_
     *   Criação do Workspace do Azure Machine Learning (`workspacedio`) na região Brazil South.
-        *   _(Print da criação/visão geral do workspace aqui)_
     *   Criação de Recursos de Computação:
         *   Instância de Computação (`CpuInstanciaZero`) para desenvolvimento/testes.
-            *   _(Print da configuração/status da instância aqui)_
         *   Cluster de Computação (`CpuCluster`) para treinamento.
-            *   _(Print da configuração/status do cluster aqui)_
 
 2.  **Preparação dos Dados:**
     *   Criação de um dataset simulado com 100 linhas contendo Data, Vendas (target) e Temperatura (feature). (Arquivo: `vendas_sorvete.csv`)
     *   Upload do CSV e criação de um Ativo de Dados ("Sorvetes") no Azure ML Studio.
-        *   _(Print da configuração/visão geral do Data Asset "Sorvetes" aqui)_
 
 3.  **Treinamento com ML Automatizado (AutoML):**
     *   Configuração de um job de AutoML para tarefa de Regressão.
     *   Seleção do dataset "Sorvetes", coluna alvo "Vendas".
     *   Definição de limites de tempo e métrica primária. (Foco no algoritmo XGBoost).
-        *   _(Print da configuração do job AutoML aqui)_
     *   Execução do job AutoML (`great_owl_rvfvh9bvks`).
-        *   _(Print da execução concluída e visão geral do melhor modelo encontrado aqui)_
     *   Registro do melhor modelo encontrado pelo AutoML: `modelo-sorvete-automl-xgboost:1`.
-        *   _(Print do modelo registrado na seção Modelos aqui)_
 
 4.  **Treinamento com Designer:**
     *   Criação de um pipeline visual no Azure ML Designer.
     *   Componentes utilizados: Dataset "Sorvetes", Select Columns, Split Data, Linear Regression, Train Model (definindo "Vendas" como label), Score Model, Evaluate Model.
-        *   _(Print do pipeline desenhado no Designer aqui)_
     *   Execução do pipeline (Job: `ExperimentDesigner / Pipeline-Created-on-05-05-2025`).
-        *   _(Print da execução bem-sucedida do pipeline aqui)_
     *   Registro do modelo treinado pelo Designer: `modelo-sorvete-designer:1`.
-        *   _(Print do modelo registrado na seção Modelos aqui)_
 
-5.  **Tentativa de Implantação:**
-    *   Objetivo: Implantar o modelo `modelo-sorvete-automl-xgboost:1` em um Ponto de Extremidade Online Gerenciado para previsões em tempo real.
-    *   Configuração da implantação via Azure ML Studio.
-        *   _(Print da tela de configuração da implantação, mostrando a VM escolhida, etc.)_
-    *   **Falha na Implantação:** O processo de implantação falhou repetidamente.
-        *   Erro inicial: `SubscriptionNotRegistered` para um provedor não especificado (`[N/A]`).
-            *   _(Print do primeiro erro detalhado aqui)_
-        *   Erro persistente após registro de provedores: `ResourceDeploymentFailure`, ainda com a mensagem `SubscriptionNotRegistered` nos detalhes.
-            *   _(Print do segundo erro detalhado aqui)_
+ 5. **Implantação do Modelo em Tempo Real** ✨🚀
 
-6.  **Troubleshooting (Solução de Problemas) da Implantação:**
-    *   Verificação e Registro/Re-registro dos provedores de recursos via Portal do Azure (`Microsoft.MachineLearningServices`, `Microsoft.Compute`, `Microsoft.Network`, `Microsoft.ContainerRegistry`, `Microsoft.Insights`, etc.).
-    *   Tentativas de implantação com diferentes tamanhos de VM (incluindo `Standard_DS1_v2`).
-    *   Exclusão de endpoints falhos antes de tentar novamente.
-    *   Verificação dos logs de atividade do Azure e logs de implantação (sem informações conclusivas adicionais sobre o provedor ausente).
-    *   *(A causa raiz do erro `SubscriptionNotRegistered` não pôde ser identificada via Studio, apesar dos provedores parecerem registrados).*
+Após os treinamentos e registros, o modelo `modelo-sorvete-automl-xgboost:1` foi selecionado para implantação como um Ponto de Extremidade Online Gerenciado no Azure Machine Learning, permitindo previsões em tempo real.
+
+*   **Configuração Inicial e Desafios:**
+    *   As primeiras tentativas de implantação encontraram falhas. O erro inicial reportado foi `SubscriptionNotRegistered` para um provedor não especificado (`[N/A]`), seguido por `ResourceDeploymentFailure` mesmo após o registro dos provedores de recursos mais comuns (`Microsoft.MachineLearningServices`, `Microsoft.Compute`, `Microsoft.Network`, `Microsoft.ContainerRegistry`, etc.).
+
+*   **Solução do Problema de Implantação:**
+    *   Após uma investigação mais aprofundada e revisão dos provedores de recursos da assinatura, identificou-se a necessidade de registrar o provedor **`Microsoft.PolicyInsights`**.
+    *   Com este provedor devidamente registrado, a implantação do Ponto de Extremidade Online foi realizada com sucesso!
+
+*   **Criação do Ponto de Extremidade Online:**
+    *   Nome do Ponto de Extremidade: `workspacedio-ecrnf` 
+    *   Modelo Implantado: `modelo-sorvete-automl-xgboost:1`
+    *   Tipo de Computação (VM): `Standard_DS1_v2` 
+    *   Autenticação: Baseada em Chave
+    *   Coleta de dados e Diagnóstico do Application Insights foram habilitados.
+![image](https://github.com/user-attachments/assets/5eec27b2-efbd-4f6f-a3e0-7f02d9dcc1d2)
+
+---
+
+<br>
+
+
+ 6. **Teste do Ponto de Extremidade Implantado** 🧪
+
+O ponto de extremidade `workspacedio-ecrnf` foi testado diretamente no Azure ML Studio para verificar sua funcionalidade:
+
+*   **Dados de Entrada (Input JSON):**
+    ```json
+    {
+      "data": [
+       ,
+       ,
+       
+      ]
+    }
+    ```
+
+*   **Resultados da Previsão (Output JSON):**
+    ```json
+    [
+      120.4972152709961,
+      148.71945190429688,
+      184.60984802246094
+    ]
+    ```
+    Isso indica que para temperaturas de 28°C, 30°C e 33°C, as vendas previstas são aproximadamente 120, 149 e 185 unidades, respectivamente.
+![image (7)](https://github.com/user-attachments/assets/7a6eeaed-efe6-49b0-a33a-888cd4e21348)
+
+---
+
+<br>
+
 
 ## 📊 Resultados e Insights
 
 *   Os dados simulados mostraram uma clara tendência de aumento das vendas com o aumento da temperatura.
-*   Tanto o AutoML (com XGBoost) quanto o Designer (com Regressão Linear) conseguiram treinar modelos de regressão com sucesso. *(Você pode adicionar métricas específicas aqui, como R², se as anotou dos jobs concluídos).*
-*   O processo de registro de modelos via MLflow integrado funcionou sem problemas para ambos os métodos.
+*   Tanto o AutoML (com XGBoost) quanto o Designer (com Regressão Linear) conseguiram treinar modelos de regressão com sucesso.
+*   O modelo `modelo-sorvete-automl-xgboost:1` foi implantado com sucesso como um serviço web para inferência em tempo real.
+*   As previsões obtidas no teste do endpoint são coerentes com a relação esperada entre temperatura e vendas.
 
 ## ✨ Aprendizados
 
-*   Compreensão do fluxo de trabalho de Machine Learning ponta a ponta no Azure ML Studio (Dados -> Treinamento -> Registro).
+*   Compreensão do fluxo de trabalho de Machine Learning ponta a ponta no Azure ML Studio (Dados -> Treinamento -> Registro -> **Implantação** -> Teste).
 *   Utilização prática do AutoML para encontrar rapidamente modelos performáticos.
 *   Utilização do Designer para criar pipelines de ML visualmente.
 *   Importância do MLflow para rastrear experimentos e versionar modelos.
-*   Experiência com os desafios e a depuração de erros durante a implantação de modelos na nuvem, especialmente relacionados a configurações da assinatura (provedores de recursos, cotas).
+*   Experiência com os desafios e a depuração de erros durante a implantação de modelos na nuvem.
+*   **Descoberta crucial:** A necessidade de registrar provedores de recursos específicos (como `Microsoft.PolicyInsights`) que podem não ser imediatamente óbvios, mas são essenciais para a criação de certos tipos de recursos no Azure. A persistência na solução de problemas é fundamental.
+
 
 ## 📁 Arquivos no Repositório
 
