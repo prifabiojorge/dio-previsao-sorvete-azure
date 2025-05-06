@@ -86,8 +86,9 @@ O ponto de extremidade `workspacedio-ecrnf` foi testado diretamente no Azure ML 
     ```json
     {
       "data": [
-       ,
-       ,
+       [28],
+       [30],
+       [33]
        
       ]
     }
